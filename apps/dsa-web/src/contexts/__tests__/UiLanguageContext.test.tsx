@@ -44,6 +44,11 @@ describe('UiLanguageContext', () => {
       storage: createStorage('en'),
       navigatorLike: { language: 'zh-CN', languages: ['zh-CN'] },
     })).toBe('en');
+
+    expect(resolveInitialUiLanguage({
+      storage: createStorage('zh-Hant'),
+      navigatorLike: { language: 'en-US', languages: ['en-US'] },
+    })).toBe('zh-Hant');
   });
 
   it('falls back from invalid storage to the first supported browser language and then zh', () => {
@@ -56,6 +61,11 @@ describe('UiLanguageContext', () => {
       storage: createStorage('fr'),
       navigatorLike: { language: 'zh-CN', languages: ['zh-CN', 'en-US'] },
     })).toBe('zh');
+
+    expect(resolveInitialUiLanguage({
+      storage: createStorage(null),
+      navigatorLike: { language: 'zh-HK', languages: ['zh-HK', 'en-US'] },
+    })).toBe('zh-Hant');
 
     expect(resolveInitialUiLanguage({
       storage: createStorage(null),
@@ -113,6 +123,12 @@ describe('UiLanguageContext', () => {
 
     const toggle = screen.getByRole('button', { name: '切换界面语言' });
     expect(screen.getByText('界面语言')).toBeInTheDocument();
+
+    fireEvent.click(toggle);
+
+    expect(localStorage.getItem(UI_LANGUAGE_STORAGE_KEY)).toBe('zh-Hant');
+    expect(screen.getByRole('button', { name: '切換介面語言' })).toBeInTheDocument();
+    expect(screen.getByText('繁體中文')).toBeInTheDocument();
 
     fireEvent.click(toggle);
 

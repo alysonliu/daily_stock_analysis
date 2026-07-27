@@ -24,11 +24,24 @@ export const UiLanguageToggle: React.FC<UiLanguageToggleProps> = ({
   iconClassName,
   labelClassName,
 }) => {
-  const { language, setLanguage, t } = useUiLanguage();
-  const nextLanguage = language === 'zh' ? 'en' : 'zh';
+  const { locale, setLanguage, t } = useUiLanguage();
+  const nextLanguage = locale === 'zh'
+    ? 'zh-Hant'
+    : locale === 'zh-Hant'
+      ? 'en'
+      : 'zh';
   const isNavVariant = variant === 'nav';
   const isRailVariant = variant === 'rail';
-  const label = language === 'zh' ? t('language.uiLanguage') : t('language.current');
+  const label = locale === 'zh'
+    ? t('language.uiLanguage')
+    : locale === 'zh-Hant'
+      ? t('language.traditional')
+      : t('language.current');
+  const shortLabel = locale === 'zh'
+    ? t('language.short.zh')
+    : locale === 'zh-Hant'
+      ? t('language.short.zhHant')
+      : t('language.short.en');
 
   return (
     <div className={cn('relative', isRailVariant ? 'w-full' : '', wrapperClassName)}>
@@ -51,7 +64,7 @@ export const UiLanguageToggle: React.FC<UiLanguageToggleProps> = ({
       >
         <Languages className={iconClassName ?? cn('shrink-0', isRailVariant ? 'h-[18px] w-[18px]' : isNavVariant ? 'h-5 w-5' : 'h-4 w-4')} />
         {isRailVariant ? (
-          <span className={labelClassName}>{language === 'zh' ? t('language.short.zh') : t('language.short.en')}</span>
+          <span className={labelClassName}>{shortLabel}</span>
         ) : isNavVariant ? (
           collapsed ? null : <span className="truncate text-[1.02rem] font-medium">{label}</span>
         ) : (
