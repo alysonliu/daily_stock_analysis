@@ -1,15 +1,18 @@
-import type { UiLanguage } from '../i18n/uiText';
+import type { UiLocale } from '../i18n/uiText';
 
 export const UI_LANGUAGE_STORAGE_KEY = 'dsa.uiLanguage';
 
-export function normalizeUiLanguage(value?: string | null): UiLanguage | null {
-  if (value === 'zh' || value === 'en') {
+export function normalizeUiLanguage(value?: string | null): UiLocale | null {
+  if (value === 'zh' || value === 'zh-Hant' || value === 'en') {
     return value;
+  }
+  if (value && ['zh-tw', 'zh-hk', 'zh-hant'].includes(value.toLowerCase())) {
+    return 'zh-Hant';
   }
   return null;
 }
 
-function getStoredUiLanguage(storage?: Storage | null): UiLanguage | null {
+function getStoredUiLanguage(storage?: Storage | null): UiLocale | null {
   if (!storage) {
     return null;
   }
@@ -33,7 +36,7 @@ export function getUiLanguageStorage(): Storage | null {
   }
 }
 
-export function persistUiLanguage(storage: Storage | null, language: UiLanguage): void {
+export function persistUiLanguage(storage: Storage | null, language: UiLocale): void {
   if (!storage) {
     return;
   }
@@ -45,7 +48,7 @@ export function persistUiLanguage(storage: Storage | null, language: UiLanguage)
   }
 }
 
-function getBrowserUiLanguage(navigatorLike?: Pick<Navigator, 'language' | 'languages'> | null): UiLanguage {
+function getBrowserUiLanguage(navigatorLike?: Pick<Navigator, 'language' | 'languages'> | null): UiLocale {
   const languageCandidates = [
     ...(Array.isArray(navigatorLike?.languages) ? navigatorLike?.languages ?? [] : []),
     navigatorLike?.language,
@@ -53,6 +56,14 @@ function getBrowserUiLanguage(navigatorLike?: Pick<Navigator, 'language' | 'lang
 
   for (const candidate of languageCandidates) {
     const normalized = candidate.toLowerCase();
+    if (
+      normalized.startsWith('zh-hant')
+      || normalized.startsWith('zh-tw')
+      || normalized.startsWith('zh-hk')
+      || normalized.startsWith('zh-mo')
+    ) {
+      return 'zh-Hant';
+    }
     if (normalized.startsWith('zh')) {
       return 'zh';
     }
@@ -70,7 +81,7 @@ export function resolveInitialUiLanguage({
 }: {
   storage?: Storage | null;
   navigatorLike?: Pick<Navigator, 'language' | 'languages'> | null;
-} = {}): UiLanguage {
+} = {}): UiLocale {
   const stored = getStoredUiLanguage(storage);
   if (stored) {
     return stored;
@@ -79,7 +90,7 @@ export function resolveInitialUiLanguage({
   return getBrowserUiLanguage(navigatorLike);
 }
 
-export function getRuntimeInitialLanguage(): UiLanguage {
+export function getRuntimeInitialLanguage(): UiLocale {
   if (typeof window === 'undefined') {
     return 'zh';
   }
