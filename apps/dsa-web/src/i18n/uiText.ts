@@ -1,4 +1,7 @@
+import * as OpenCC from 'opencc-js';
+
 export type UiLanguage = 'zh' | 'en';
+export type UiLocale = 'zh' | 'zh-Hant' | 'en';
 
 const zh = {
   'common.cancel': '取消',
@@ -29,8 +32,10 @@ const zh = {
 
   'language.current': '中文',
   'language.english': 'English',
+  'language.traditional': '繁體中文',
   'language.short.en': 'EN',
   'language.short.zh': '中',
+  'language.short.zhHant': '繁',
   'language.toggle': '切换界面语言',
   'language.uiLanguage': '界面语言',
 
@@ -965,8 +970,10 @@ const en: Record<UiTextKey, string> = {
 
   'language.current': 'English',
   'language.english': 'English',
+  'language.traditional': 'Traditional Chinese',
   'language.short.en': 'EN',
   'language.short.zh': '中',
+  'language.short.zhHant': '繁',
   'language.toggle': 'Switch UI language',
   'language.uiLanguage': 'UI language',
 
@@ -1870,8 +1877,26 @@ const en: Record<UiTextKey, string> = {
   'settings.envDockerNote': 'In Docker deployments, --env-file and Compose env_file inject environment variables only at startup. This export/import area uses the backend active .env file. To keep WebUI-saved values across container rebuilds, point ENV_FILE to a writable data-volume file such as /app/data/runtime.env and avoid keeping same-name old values in the startup environment.',
 };
 
-export const UI_TEXT: Record<UiLanguage, Record<UiTextKey, string>> = {
+const toTraditionalChinese = OpenCC.Converter({ from: 'cn', to: 'hk' });
+
+const zhHant = Object.fromEntries(
+  Object.entries(zh).map(([key, value]) => [key, toTraditionalChinese(value)])
+) as Record<UiTextKey, string>;
+
+Object.assign(zhHant, {
+  'language.current': '繁體中文',
+  'language.english': 'English',
+  'language.traditional': '繁體中文',
+  'language.short.en': 'EN',
+  'language.short.zh': '簡',
+  'language.short.zhHant': '繁',
+  'language.toggle': '切換介面語言',
+  'language.uiLanguage': '介面語言',
+});
+
+export const UI_TEXT: Record<UiLocale, Record<UiTextKey, string>> = {
   zh,
+  'zh-Hant': zhHant,
   en,
 };
 
